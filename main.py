@@ -5,7 +5,7 @@ import requests
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QMainWindow
-from ui_design import Ui_MainWindow
+from PyQt5.QtCore import Qt
 
 SCREEN_SIZE = [600, 450]
 
@@ -76,6 +76,34 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def set_new_image(self):
         self.pixmap = QPixmap(self.map_file)
         self.mapImage.setPixmap(self.pixmap)
+
+    def keyPressEvent(self, event) -> None:
+        if int(event.modifiers()) == Qt.ControlModifier:
+            if event.key() in [Qt.Key_Plus, Qt.Key_Equal]:
+                self.resize_handler('+')
+            elif event.key() == Qt.Key_Minus:
+                self.resize_handler('-')
+
+    def resize_handler(self, button: str) -> None:
+        '''Handle resizing of map'''
+        spn = self.spn.split(',')
+        if button == '+':
+            spn = list(map(lambda x: str(round(float(x) / 2, 2)), spn))
+        elif button == '-':
+            spn = list(map(lambda x: str(round(float(x) * 2, 2)), spn))
+        if float(spn[0]) < 0:
+            spn[0] = '0.01'
+        if float(spn[1]) < 0:
+            spn[1] = '0.01'
+        self.spn = ','.join(spn)
+        self.update_main_image()
+
+    def update_main_image(self):
+        self.getImage()
+        self.pixmap = QPixmap(self.map_file)
+        self.image.move(0, 0)
+        self.image.resize(600, 450)
+        self.image.setPixmap(self.pixmap)
 
     def getImage(self):
         map_request = f"http://static-maps.yandex.ru/1.x/?ll={self.pos}&spn={self.spn}&l={self.l}"
