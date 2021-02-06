@@ -51,6 +51,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.search.clicked.connect(self.get_new_image_with_search)
         self.initUI()
         self.getImage()
+        self.type.activated.connect(self.change_type)
 
     def initUI(self):
         self.setGeometry(100, 100, *SCREEN_SIZE)
@@ -107,6 +108,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         elif event.key() == Qt.Key_Right:
             x = min(x + self.step_for_pos_change, 90)
         self.pos = f'{x},{y}'
+        self.getImage()
+
+    def change_type(self):
+        if self.type.currentText() == 'Схема':
+            self.l = 'map'
+        elif self.type.currentText() == 'Спутник':
+            self.l = 'sat'
+        else:
+            self.l = 'skl'
         self.getImage()
 
 
