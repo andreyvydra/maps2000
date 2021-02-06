@@ -44,7 +44,7 @@ def get_coordinates(address):
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
-        self.pos = '30.304899,59.918068'
+        self.pos = self.get_ip()
         self.spn = '1,1'
         self.l = 'map'
         self.step_for_pos_change = 0.1
@@ -55,11 +55,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.getImage()
         self.type.activated.connect(self.change_type)
 
+    def get_ip(self) -> str:
+        ip_finder = 'https://ipinfo.io'
+        location = requests.get(ip_finder).json()['loc']
+        location = location.split(',')
+        location = reversed(location)
+        return ','.join(location)
+
     def initUI(self):
         self.setGeometry(100, 100, *SCREEN_SIZE)
         self.setWindowTitle('Отображение карты')
 
-        ## Изображение
+        # Изображение
         self.set_new_image()
 
     def closeEvent(self, event):
