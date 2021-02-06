@@ -47,11 +47,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.initUI()
 
     def get_new_image_with_search(self):
-        toponym_to_find = self.searchEdit.text()
-        toponym_longitude, toponym_lattitude = get_coordinates(toponym_to_find)
-        ll = ",".join([str(toponym_longitude), str(toponym_lattitude)])
-        self.getImage(ll)
-        self.set_new_image()
+        if self.searchEdit.text() != '':
+            toponym_to_find = self.searchEdit.text()
+            toponym_longitude, toponym_lattitude = get_coordinates(toponym_to_find)
+            ll = ",".join([str(toponym_longitude), str(toponym_lattitude)])
+            self.getImage(ll)
+            self.set_new_image()
 
     def set_new_image(self):
         self.pixmap = QPixmap(self.map_file)
