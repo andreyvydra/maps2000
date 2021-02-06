@@ -37,10 +37,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         ## Изображение
         self.pixmap = QPixmap(self.map_file)
-        self.image = QLabel(self)
-        self.image.move(0, 0)
-        self.image.resize(600, 450)
-        self.image.setPixmap(self.pixmap)
+        self.mapImage.setPixmap(self.pixmap)
 
     def closeEvent(self, event):
         """При закрытии формы подчищаем за собой"""
