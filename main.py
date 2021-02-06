@@ -3,14 +3,16 @@ import sys
 
 import requests
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QMainWindow
+from ui_design import Ui_MainWindow
 
 SCREEN_SIZE = [600, 450]
 
 
-class Example(QWidget):
+class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
+        self.setupUi(self)
         self.getImage()
         self.initUI()
 
@@ -47,6 +49,6 @@ class Example(QWidget):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    ex = Example()
+    ex = MainWindow()
     ex.show()
     sys.exit(app.exec())
