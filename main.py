@@ -2,6 +2,7 @@ import os
 import sys
 
 import requests
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QMainWindow
 from ui_design import Ui_MainWindow
@@ -51,20 +52,32 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.initUI()
         self.getImage()
 
+    def initUI(self):
+        self.setGeometry(100, 100, *SCREEN_SIZE)
+        self.setWindowTitle('Отображение карты')
+
+        ## Изображение
+        self.set_new_image()
+
+    def closeEvent(self, event):
+        """При закрытии формы подчищаем за собой"""
+        os.remove(self.map_file)
+
     def get_new_image_with_search(self):
         if self.searchEdit.text() != '':
             toponym_to_find = self.searchEdit.text()
             toponym_longitude, toponym_lattitude = get_coordinates(toponym_to_find)
             ll = ",".join([str(toponym_longitude), str(toponym_lattitude)])
-            self.getImage(ll)
+            self.pos = ll
+            self.getImage()
             self.set_new_image()
 
     def set_new_image(self):
         self.pixmap = QPixmap(self.map_file)
         self.mapImage.setPixmap(self.pixmap)
 
-    def getImage(self, ll='30.304899,59.918068'):
-        map_request = f"http://static-maps.yandex.ru/1.x/?ll={ll}&spn=1,1&l=map"
+    def getImage(self):
+        map_request = f"http://static-maps.yandex.ru/1.x/?ll={self.pos}&spn={self.spn}&l={self.l}"
         response = requests.get(map_request)
 
         if not response:
@@ -79,20 +92,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             file.write(response.content)
         self.set_image()
 
-    def initUI(self):
-        self.setGeometry(100, 100, *SCREEN_SIZE)
-        self.setWindowTitle('Отображение карты')
-
-        ## Изображение
-        self.set_new_image()
-
     def set_image(self):
         self.pixmap = QPixmap(self.map_file)
-        self.image.setPixmap(self.pixmap)
-
-    def closeEvent(self, event):
-        """При закрытии формы подчищаем за собой"""
-        os.remove(self.map_file)
+        self.mapImage.setPixmap(self.pixmap)
 
     def keyPressEvent(self, event):
         x, y = [float(i) for i in self.pos.split(',')]
