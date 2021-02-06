@@ -7,6 +7,8 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QMainWindow
 from PyQt5.QtCore import Qt
 
+from ui_design import Ui_MainWindow
+
 SCREEN_SIZE = [600, 450]
 
 
@@ -84,6 +86,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             elif event.key() == Qt.Key_Minus:
                 self.resize_handler('-')
 
+        x, y = [float(i) for i in self.pos.split(',')]
+        if event.key() == Qt.Key_Up:
+            y = max(y + self.step_for_pos_change, -90)
+        elif event.key() == Qt.Key_Down:
+            y = min(y - self.step_for_pos_change, 90)
+        elif event.key() == Qt.Key_Left:
+            x = max(x - self.step_for_pos_change, -90)
+        elif event.key() == Qt.Key_Right:
+            x = min(x + self.step_for_pos_change, 90)
+        self.pos = f'{x},{y}'
+        self.getImage()
+
     def resize_handler(self, button: str) -> None:
         '''Handle resizing of map'''
         spn = self.spn.split(',')
@@ -100,10 +114,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def update_main_image(self):
         self.getImage()
-        self.pixmap = QPixmap(self.map_file)
-        self.image.move(0, 0)
-        self.image.resize(600, 450)
-        self.image.setPixmap(self.pixmap)
+        self.set_new_image()
 
     def getImage(self):
         map_request = f"http://static-maps.yandex.ru/1.x/?ll={self.pos}&spn={self.spn}&l={self.l}"
@@ -124,19 +135,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def set_image(self):
         self.pixmap = QPixmap(self.map_file)
         self.mapImage.setPixmap(self.pixmap)
-
-    def keyPressEvent(self, event):
-        x, y = [float(i) for i in self.pos.split(',')]
-        if event.key() == Qt.Key_Up:
-            y = max(y + self.step_for_pos_change, -90)
-        elif event.key() == Qt.Key_Down:
-            y = min(y - self.step_for_pos_change, 90)
-        elif event.key() == Qt.Key_Left:
-            x = max(x - self.step_for_pos_change, -90)
-        elif event.key() == Qt.Key_Right:
-            x = min(x + self.step_for_pos_change, 90)
-        self.pos = f'{x},{y}'
-        self.getImage()
 
     def change_type(self):
         if self.type.currentText() == 'Схема':
