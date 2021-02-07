@@ -62,9 +62,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         ## Изображение
         self.set_new_image()
 
-    def closeEvent(self, event):
-        """При закрытии формы подчищаем за собой"""
-        os.remove(self.map_file)
+    def getImage(self):
+        map_request = f"http://static-maps.yandex.ru/1.x/?ll={self.pos}&spn={self.spn}&l={self.l}"
+        response = requests.get(map_request)
+
+        if not response:
+            print("Ошибка выполнения запроса:")
+            print(map_request)
+            print("Http статус:", response.status_code, "(", response.reason, ")")
+            sys.exit(1)
+
+        # Запишем полученное изображение в файл.
+        self.map_file = "map.png"
+        with open(self.map_file, "wb") as file:
+            file.write(response.content)
+        self.set_new_image()
 
     def get_new_image_with_search(self):
         if self.searchEdit.text() != '':
@@ -78,25 +90,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def set_new_image(self):
         self.pixmap = QPixmap(self.map_file)
         self.mapImage.setPixmap(self.pixmap)
-
-    def keyPressEvent(self, event) -> None:
-        if int(event.modifiers()) == Qt.ControlModifier:
-            if event.key() in [Qt.Key_Plus, Qt.Key_Equal]:
-                self.resize_handler('+')
-            elif event.key() == Qt.Key_Minus:
-                self.resize_handler('-')
-
-        x, y = [float(i) for i in self.pos.split(',')]
-        if event.key() == Qt.Key_Up:
-            y = max(y + self.step_for_pos_change, -90)
-        elif event.key() == Qt.Key_Down:
-            y = min(y - self.step_for_pos_change, 90)
-        elif event.key() == Qt.Key_Left:
-            x = max(x - self.step_for_pos_change, -90)
-        elif event.key() == Qt.Key_Right:
-            x = min(x + self.step_for_pos_change, 90)
-        self.pos = f'{x},{y}'
-        self.getImage()
 
     def resize_handler(self, button: str) -> None:
         '''Handle resizing of map'''
@@ -116,26 +109,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.getImage()
         self.set_new_image()
 
-    def getImage(self):
-        map_request = f"http://static-maps.yandex.ru/1.x/?ll={self.pos}&spn={self.spn}&l={self.l}"
-        response = requests.get(map_request)
-
-        if not response:
-            print("Ошибка выполнения запроса:")
-            print(map_request)
-            print("Http статус:", response.status_code, "(", response.reason, ")")
-            sys.exit(1)
-
-        # Запишем полученное изображение в файл.
-        self.map_file = "map.png"
-        with open(self.map_file, "wb") as file:
-            file.write(response.content)
-        self.set_image()
-
-    def set_image(self):
-        self.pixmap = QPixmap(self.map_file)
-        self.mapImage.setPixmap(self.pixmap)
-
     def change_type(self):
         if self.type.currentText() == 'Схема':
             self.l = 'map'
@@ -143,6 +116,29 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.l = 'sat'
         else:
             self.l = 'skl'
+        self.getImage()
+
+    def closeEvent(self, event):
+        """При закрытии формы подчищаем за собой"""
+        os.remove(self.map_file)
+
+    def keyPressEvent(self, event) -> None:
+        if int(event.modifiers()) == Qt.ControlModifier:
+            if event.key() in [Qt.Key_Plus, Qt.Key_Equal]:
+                self.resize_handler('+')
+            elif event.key() == Qt.Key_Minus:
+                self.resize_handler('-')
+
+        x, y = [float(i) for i in self.pos.split(',')]
+        if event.key() == Qt.Key_Up:
+            y = max(y + self.step_for_pos_change, -90)
+        elif event.key() == Qt.Key_Down:
+            y = min(y - self.step_for_pos_change, 90)
+        elif event.key() == Qt.Key_Left:
+            x = max(x - self.step_for_pos_change, -90)
+        elif event.key() == Qt.Key_Right:
+            x = min(x + self.step_for_pos_change, 90)
+        self.pos = f'{x},{y}'
         self.getImage()
 
 
