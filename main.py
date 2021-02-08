@@ -47,6 +47,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.pos = '30.304899,59.918068'
         self.spn = '1,1'
         self.l = 'map'
+        self.pt = ''
         self.step_for_pos_change = 0.1
         self.setupUi(self)
         self.getImage()
@@ -63,12 +64,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.set_new_image()
 
     def getImage(self):
-        map_request = f"http://static-maps.yandex.ru/1.x/?ll={self.pos}&spn={self.spn}&l={self.l}"
-        response = requests.get(map_request)
+        url = 'http://static-maps.yandex.ru/1.x/'
+        params = {
+            'll': self.pos,
+            'spn': self.spn,
+            'l': self.l
+        }
+
+        if self.pt != '':
+            params['pt'] = self.pt
+
+        response = requests.get(url, params=params)
 
         if not response:
             print("Ошибка выполнения запроса:")
-            print(map_request)
             print("Http статус:", response.status_code, "(", response.reason, ")")
             sys.exit(1)
 
@@ -84,6 +93,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             toponym_longitude, toponym_lattitude = get_coordinates(toponym_to_find)
             ll = ",".join([str(toponym_longitude), str(toponym_lattitude)])
             self.pos = ll
+            self.pt = ll
             self.getImage()
             self.set_new_image()
 
